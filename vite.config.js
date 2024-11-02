@@ -1,5 +1,6 @@
-const ASSET_URL = process.env.ASSET_URL || '';
+import { defineConfig } from 'vite'
 
-export default { 
-  base: "/",
-}
+// https://vitejs.dev/config/
+export default defineConfig({
+  base: '/gltf-rotate/',
+})
