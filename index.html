@@ -1,117 +1,171 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<title>My first three.js app</title>
-		<style>
-			body { margin: 0;}
-		</style>
-            <script src="https://unpkg.com/three@0.139.2/build/three.min.js"></script>
-            <script src="https://unpkg.com/three@0.139.2/examples/js/controls/OrbitControls.js"></script>
-            <script src="https://unpkg.com/three@0.139.2/examples/js/loaders/GLTFLoader.js"></script>
-        </head>
-	<body>
-        <div id="slider-container">
-            <label for="yaw">Yaw (rad): </label>
-            <span>0</span>
-            <input type="range" id="yaw" min="0" max="6.28319" step="0.01" value="0">
-            <span>2π</span>
-            <br>
-            
-            <label for="pitch">Pitch (rad): </label>
-            <span>0</span>
-            <input type="range" id="pitch" min="0" max="6.28319" step="0.01" value="0">
-            <span>2π</span>
-            <br>
-            
-            <label for="roll">Roll (rad): </label>
-            <span>0</span>
-            <input type="range" id="roll" min="0" max="6.28319" step="0.01" value="0">
-            <span>2π</span>
-        </div>
-        <script>
+<head>
+    <meta charset="utf-8">
+    <title>My first three.js app</title>
+    <style>
+        body { margin: 0; overflow: hidden;}
+        #drag-drop-area {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 150px;
+            height: 50px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            text-align: center;
+            line-height: 50px;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+            cursor: pointer;
+        }
+        #slider-container {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+        }
+    </style>
+    <script src="https://unpkg.com/three@0.139.2/build/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.139.2/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://unpkg.com/three@0.139.2/examples/js/loaders/GLTFLoader.js"></script>
+</head>
+<body>
+    <div id="drag-drop-area">Drop GLTF here</div>
+    <div id="slider-container">
+        <label for="yaw">Yaw (rad): </label>
+        <span>0</span>
+        <input type="range" id="yaw" min="0" max="6.28319" step="0.01" value="0">
+        <span>2π</span>
+        <br>
+        
+        <label for="pitch">Pitch (rad): </label>
+        <span>0</span>
+        <input type="range" id="pitch" min="0" max="6.28319" step="0.01" value="0">
+        <span>2π</span>
+        <br>
+        
+        <label for="roll">Roll (rad): </label>
+        <span>0</span>
+        <input type="range" id="roll" min="0" max="6.28319" step="0.01" value="0">
+        <span>2π</span>
+    </div>
+    <script>
         window.addEventListener(`DOMContentLoaded`, () => {
             const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
 
-// Lighting
-// Voeg een Ambient Light toe
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Pas intensiteit aan naar wens
-scene.add(ambientLight);
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
 
-    
-// GLTF Loader
-const loader = new THREE.GLTFLoader();
-loader.load(
-  'building.glb', // Verander dit naar het pad van je GLTF-bestand
-  (gltf) => {
-    const model = gltf.scene;
-    model.scale.set(0.5, 0.5, 0.5); // Schaal het model met 50%
-    model.position.set(0, 0, 0); // Pas aan naar wens
-    scene.add(model);
+            // GLTF Loader
+            const loader = new THREE.GLTFLoader();
+            let model;
 
-        // Sliders instellen
-        const yawSlider = document.getElementById('yaw');
-        const pitchSlider = document.getElementById('pitch');
-        const rollSlider = document.getElementById('roll');
-    
-        // Event listeners voor sliders
-        const updateRotation = () => {
-          if (model) { // Zorg ervoor dat het model is geladen
-            const yaw = parseFloat(yawSlider.value);
-            const pitch = parseFloat(pitchSlider.value);
-            const roll = parseFloat(rollSlider.value);
-    
-            // Pas de rotatie van het model aan
-            model.rotation.y = yaw; // Yaw
-            model.rotation.x = pitch; // Pitch
-            model.rotation.z = roll; // Roll
-          }
-        };
-    
-        yawSlider.addEventListener('input', updateRotation);
-        pitchSlider.addEventListener('input', updateRotation);
-        rollSlider.addEventListener('input', updateRotation);
-    
-  },
-  (xhr) => {
-    console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-  },
-  (error) => {
-    console.error('An error happened', error);
-  }
-);
+            // Load default model
+            loader.load(
+                'building.glb',
+                (gltf) => {
+                    model = gltf.scene;
+                    model.scale.set(0.5, 0.5, 0.5);
+                    model.position.set(0, 0, 0);
+                    scene.add(model);
 
-// Camera position
-camera.position.z = 5;
+                    // Sliders instellen
+                    setupSliders(model);
+                },
+                (xhr) => {
+                    console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+                },
+                (error) => {
+                    console.error('An error happened', error);
+                }
+            );
 
-// Controls
-const controls = new THREE.OrbitControls(camera, renderer.domElement);
+            // Sliders function
+            function setupSliders(model) {
+                const yawSlider = document.getElementById('yaw');
+                const pitchSlider = document.getElementById('pitch');
+                const rollSlider = document.getElementById('roll');
 
-// Animate
-function animate() {
-  requestAnimationFrame(animate);
+                const updateRotation = () => {
+                    if (model) {
+                        model.rotation.y = parseFloat(yawSlider.value);
+                        model.rotation.x = parseFloat(pitchSlider.value);
+                        model.rotation.z = parseFloat(rollSlider.value);
+                    }
+                };
 
-  // Rotate the cube for reference
-//   cube.rotation.x += 0.01;
-//   cube.rotation.y += 0.01;
+                yawSlider.addEventListener('input', updateRotation);
+                pitchSlider.addEventListener('input', updateRotation);
+                rollSlider.addEventListener('input', updateRotation);
+            }
 
-  controls.update();
-  renderer.render(scene, camera);
-}
-animate();
+            // Drag and Drop functionality
+            const dropArea = document.getElementById('drag-drop-area');
+            dropArea.addEventListener('dragover', (event) => {
+                event.preventDefault();
+                dropArea.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+            });
 
-// Handle window resize
-window.addEventListener('resize', () => {
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-});            
+            dropArea.addEventListener('dragleave', () => {
+                dropArea.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+            });
+
+            dropArea.addEventListener('drop', (event) => {
+                event.preventDefault();
+                dropArea.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+                
+                const file = event.dataTransfer.files[0];
+                if (file && file.name.endsWith('.glb') || file.name.endsWith('.gltf')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const arrayBuffer = e.target.result;
+
+                        loader.parse(arrayBuffer, '', (gltf) => {
+                            if (model) scene.remove(model); // Remove existing model
+                            model = gltf.scene;
+                            model.scale.set(0.5, 0.5, 0.5);
+                            scene.add(model);
+
+                            // Update sliders
+                            setupSliders(model);
+                        });
+                    };
+                    reader.readAsArrayBuffer(file);
+                } else {
+                    alert('Please drop a valid GLTF or GLB file');
+                }
+            });
+
+            // Camera position
+            camera.position.z = 5;
+
+            // Controls
+            const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+            // Animate
+            function animate() {
+                requestAnimationFrame(animate);
+                controls.update();
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+            });            
         });
-
-        </script>
-    </body>
+    </script>
+</body>
 </html>
