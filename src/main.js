@@ -19,7 +19,7 @@ scene.add(ambientLight);
 // GLTF Loader
 const loader = new GLTFLoader();
 loader.load(
-  '/gltf-rotate/building.glb', // Verander dit naar het pad van je GLTF-bestand
+  'building.glb', // Verander dit naar het pad van je GLTF-bestand
   (gltf) => {
     const model = gltf.scene;
     model.scale.set(0.5, 0.5, 0.5); // Schaal het model met 50%

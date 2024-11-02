@@ -1,5 +1,5 @@
-import { defineConfig } from 'vite';
+const ASSET_URL = process.env.ASSET_URL || '';
 
-export default defineConfig({
-  base: '/gltf-rotate/', // Vervang dit door je repository naam
-});
+export default { 
+  base: "/gltf-rotate/",
+}
